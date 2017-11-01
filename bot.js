@@ -9,15 +9,11 @@ const PUBG = require("./games/pubg.js")
 const Translate = require("./tools/translate.js")
 const GoogleTTS = require("google-tts-api");
 
-const Fetch = require("node-fetch")
-const Cheerio = require("cheerio")
-const YTDL = require("ytdl-core");
-
 const prefix = BotSettings.prefix
 
 const client = new Discord.Client()
 
-async function parseCommand(message, channel) {
+async function parseCommand(message) {
     let messageArray = message.toString().split(" ")
     let command = messageArray[0].replace("\r\n", "").replace(prefix, "")
     let args = messageArray.slice(1)
@@ -67,18 +63,11 @@ client.on("ready", async () => {
 
 client.on("message",async message => {
     if(message.author.bot) return
-    //if(message.channel.type === "dm") return
-
-    if (message.content.startsWith('++play')) {
-        
-    }
-        
 
     if(message.content.startsWith('++tts')){
         const voiceChannel = message.member.voiceChannel;
         if (!voiceChannel) return message.reply(`Please be in a voice channel first!`)
         let messageArray = message.toString().split(" ")
-        let command = messageArray[0].replace("\r\n", "")
         let args = messageArray.slice(1)
         let msg = args.slice(1).join(" ")
         let ttsaudio = await GoogleTTS(msg, "nl", 1)

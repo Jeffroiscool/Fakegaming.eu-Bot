@@ -6,7 +6,7 @@ const Request = require("request-promise")
 module.exports = {
     getFortniteStats: async function (username) {
         if(!await checkFortnitePlayerExists(username)){
-            let test = await searchFortnitePlayer(username)
+            await searchFortnitePlayer(username)
         }
         await checkFortnitePlayerUpdated(username)
         let stats = await getFortnitePlayerStats(username)
@@ -23,9 +23,6 @@ async function checkFortnitePlayerExists(username){
         }else{
             return true;
         }
-    }else{
-        console.log(error)
-        console.log(response)
     }
 }
 
@@ -43,7 +40,7 @@ async function searchFortnitePlayer(username){
     let match = regex.exec(res)
     let number = match[1]
     let url = `https://fortnitestats.net/includes/api/ajax.php?user=${username}&n=${number}`
-    let ajaxres = await Fetch(url)
+    await Fetch(url)
     return true
 }
 
@@ -63,14 +60,11 @@ async function checkFortnitePlayerUpdated(username){
                 let match = regex.exec(data)
                 let number = match[1]
                 let url = `https://fortnitestats.net/includes/api/ajax.php?user=${username}&n=${number}`
-                let ajaxres = await Fetch(url)
+                await Fetch(url)
             }
         }else{
             return true
         }
-    }else{
-        console.log(error)
-        console.log(response)
     }
 }
 
@@ -80,7 +74,7 @@ async function getFortnitePlayerStats(username){
     let res = await Fetch(url)
     let data = await res.text();
     if(res.ok){
-        $ = Cheerio.load(data)
+        let $ = Cheerio.load(data)
         let totalKills = $(".panel-green").find("h3").text()
         let soloKills = $("h4:contains('Kills')").eq(0).prev().text()
         let duoKills = $("h4:contains('Kills')").eq(1).prev().text()

@@ -55,27 +55,27 @@ async function getPUBGPlayerStats(username, region){
     let adrText = ""
     let topText = ""
 
-    for(s of statsArray){
+    for(let s of statsArray){
         if(s != undefined){
             let st = s.stats
             let matchType = await parseMatchType(s.match)
-            rank = st.find(o => o.name === "BestRank").displayValue
+            let rank = st.find(o => o.name === "BestRank").displayValue
             rankText += `${matchType}: ${rank}\n`
-            rating = st.find(o => o.name === "Rating").displayValue
+            let rating = st.find(o => o.name === "Rating").displayValue
             ratingText += `${matchType}: ${rating}\n`
-            kdr = st.find(o => o.name === "KillDeathRatio").displayValue
+            let kdr = st.find(o => o.name === "KillDeathRatio").displayValue
             kdrText += `${matchType}: ${kdr}\n`
-            wins = st.find(o => o.name === "Wins").displayValue
+            let wins = st.find(o => o.name === "Wins").displayValue
             winText += `${matchType}: ${wins}\n`
-            matches = st.find(o => o.name === "RoundsPlayed").displayValue
+            let matches = st.find(o => o.name === "RoundsPlayed").displayValue
             matchesText += `${matchType}: ${matches}\n`
-            seasonHigh = st.find(o => o.name === "BestRating").displayValue
+            let seasonHigh = st.find(o => o.name === "BestRating").displayValue
             seasonHighText += `${matchType}: ${seasonHigh}\n`
-            adr = st.find(o => o.name === "DamagePg").displayValue
+            let adr = st.find(o => o.name === "DamagePg").displayValue
             adrText += `${matchType}: ${adr}\n`
             top = st.find(o => o.name === "Top10s").displayValue
             topText += `${matchType}: ${top}\n`
-            kills = st.find(o => o.name === "Kills").displayValue
+            let kills = st.find(o => o.name === "Kills").displayValue
             killText += `${matchType}: ${kills}\n`
         }
     }

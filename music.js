@@ -6,7 +6,7 @@ const Util = require("util")
 const YTSearchAsync = Util.promisify(YTSearch)
 
 module.exports = {
-    play: async function (message, input) {
+    play: async function (message) {
 
         let messageArray = message.toString().split(" ")
         let args = messageArray.slice(1)
@@ -69,7 +69,7 @@ function playNextSongInQueue(message){
         return
     }
 
-    new Promise((resolve, reject) => {
+    new Promise((resolve) => {
         let voiceConnection = currentVoiceConnection[message.guild.id]
         if (voiceConnection === null || voiceConnection === undefined) {
             message.member.voiceChannel.join().then(connection => {
@@ -92,7 +92,6 @@ function playNextSongInQueue(message){
                 currentQueue[message.guild.id].shift()
                 playNextSongInQueue(message)
             }, 1000)
-            //
         })
         
         //message.channel.send(`Started playback: ${song.title} requested by ${song.requester}`)
@@ -104,7 +103,7 @@ async function getQueue(message){
     let embed = new Discord.RichEmbed()
     let songList = ""
     let i = 0
-    for(song of currentQueue[message.guild.id]){
+    for(let song of currentQueue[message.guild.id]){
         i++
         songList += `#${i} - ${song.title}\n`
     }
@@ -112,6 +111,6 @@ async function getQueue(message){
     return embed
 }
 
-let currentDispatcher = []
-let currentQueue = {}
-let currentVoiceConnection = []
+const currentDispatcher = []
+const currentQueue = {}
+const currentVoiceConnection = []
