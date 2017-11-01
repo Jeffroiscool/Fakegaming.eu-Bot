@@ -1,0 +1,5 @@
+/botsettings.json
+*.mp3
+/node_modules/
+/.vscode/
+/ideas.txt

@@ -1,0 +1,28 @@
+{
+  "name": "jeffrobot",
+  "version": "0.0.1",
+  "description": "Jeffro Bot",
+  "main": "bot.js",
+  "author": "Zeffuro",
+  "license": "ISC",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.13",
+    "bufferutil": "^3.0.2",
+    "cheerio": "^1.0.0-rc.2",
+    "discord.js": "^11.2.1",
+    "ffmpeg-binaries": "^3.2.2-3",
+    "google-translate-api": "^2.3.0",
+    "google-tts-api": "0.0.2",
+    "libsodium-wrappers": "^0.7.2",
+    "node-fetch": "^1.7.3",
+    "node-opus": "^0.2.7",
+    "overwatch-js": "^1.6.0",
+    "pubg.js": "^1.5.1",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "uws": "^8.14.1",
+    "youtube-dl": "^1.12.2",
+    "youtube-search": "^1.0.10",
+    "ytdl-core": "^0.18.1"
+  }
+}
