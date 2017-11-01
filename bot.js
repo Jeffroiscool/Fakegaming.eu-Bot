@@ -7,11 +7,11 @@ const Fortnite = require("./games/fortnite.js")
 const Overwatch = require("./games/overwatch.js")
 const PUBG = require("./games/pubg.js")
 const Translate = require("./tools/translate.js")
-const GoogleTTS = require('google-tts-api');
+const GoogleTTS = require("google-tts-api");
 
-const Fetch = require('node-fetch')
-const Cheerio = require('cheerio')
-const YTDL = require('ytdl-core');
+const Fetch = require("node-fetch")
+const Cheerio = require("cheerio")
+const YTDL = require("ytdl-core");
 
 const prefix = BotSettings.prefix
 

@@ -1,7 +1,7 @@
 const Discord = require("discord.js")
 const pubg = require("pubg.js");
 const client = new pubg.Client("empty", {api: "pubgtop"});
-const Fetch = require('node-fetch')
+const Fetch = require("node-fetch")
 
 module.exports = {
     getPUBGStats: async function (username, region) {

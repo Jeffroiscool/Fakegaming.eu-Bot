@@ -1,7 +1,7 @@
 const BotSettings = require("./botsettings.json")
 const Discord = require("discord.js")
-const YTDL = require('ytdl-core');
-const YTSearch = require('youtube-search');
+const YTDL = require("ytdl-core");
+const YTSearch = require("youtube-search");
 const Util = require("util")
 const YTSearchAsync = Util.promisify(YTSearch)
 
