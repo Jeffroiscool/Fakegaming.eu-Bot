@@ -59,7 +59,7 @@ module.exports = {
     }
 }
 
-function playNextSongInQueue(message){
+async function playNextSongInQueue(message){
     if(currentQueue[message.guild.id].length === 0){
         message.channel.send(`Stopped playback`)
         message.member.voiceChannel.leave()
@@ -68,34 +68,25 @@ function playNextSongInQueue(message){
         currentVoiceConnection[message.guild.id] = undefined
         return
     }
+    
+    if(!message.guild.voiceConnection){
+        currentVoiceConnection[message.guild.id] = await message.member.voiceChannel.join()
+    }
 
-    new Promise((resolve) => {
-        let voiceConnection = currentVoiceConnection[message.guild.id]
-        if (voiceConnection === null || voiceConnection === undefined) {
-            message.member.voiceChannel.join().then(connection => {
-                currentVoiceConnection[message.guild.id] = connection
-                resolve(connection)
-            }).catch((error) => {
-                console.log(error)
-            })
-        }else{
-            resolve(voiceConnection)
-        }
-    }).then(connection => {
+    //currentVoiceConnection[message.guild.id] = currentVoiceConnection[message.guild.id] || await message.member.voiceChannel.join()
         
-        let song = currentQueue[message.guild.id][0]
-        currentDispatcher[message.guild.id] = connection.playStream(song.stream)
-        currentDispatcher[message.guild.id].on('debug', info => console.log(info))
-        currentDispatcher[message.guild.id].on('error', error => console.log(error))
-        currentDispatcher[message.guild.id].on('end', () => {
-            setTimeout(() => {
-                currentQueue[message.guild.id].shift()
-                playNextSongInQueue(message)
-            }, 1000)
-        })
-        
-        //message.channel.send(`Started playback: ${song.title} requested by ${song.requester}`)
-    });
+    let song = currentQueue[message.guild.id][0]
+    currentDispatcher[message.guild.id] = currentVoiceConnection[message.guild.id].playStream(song.stream)
+    currentDispatcher[message.guild.id].on('debug', info => console.log(info))
+    currentDispatcher[message.guild.id].on('error', error => console.log(error))
+    currentDispatcher[message.guild.id].on('end', () => {
+        setTimeout(() => {
+            currentQueue[message.guild.id].shift()
+            playNextSongInQueue(message)
+        }, 1000)
+    })
+    
+    //message.channel.send(`Started playback: ${song.title} requested by ${song.requester}`)
 }
 
 async function getQueue(message){
