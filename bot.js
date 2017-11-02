@@ -53,6 +53,7 @@ async function parseCommand(message) {
 
 client.on("ready", async () => {
     console.log(`Bot is online ${client.user.username}`)
+    client.user.setGame('Fakegaming.eu');
     try {
         let link = await client.generateInvite(["ADMINISTRATOR"])
         console.log(link)
