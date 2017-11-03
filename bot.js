@@ -1,13 +1,6 @@
 const BotSettings = require("./botsettings.json")
 const Discord = require("discord.js")
 
-const Music = require("./music.js")
-
-const Fortnite = require("./games/fortnite.js")
-const Overwatch = require("./games/overwatch.js")
-const PUBG = require("./games/pubg.js")
-const Translate = require("./tools/translate.js")
-const GoogleTTS = require("google-tts-api");
 const FS = require("fs");
 
 const prefix = BotSettings.prefix
