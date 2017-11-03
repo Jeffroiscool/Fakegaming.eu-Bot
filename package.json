@@ -14,6 +14,8 @@
     "google-translate-api": "^2.3.0",
     "google-tts-api": "0.0.2",
     "libsodium-wrappers": "^0.7.2",
+    "moment": "^2.19.1",
+    "moment-duration-format": "^1.3.0",
     "node-fetch": "^1.7.3",
     "node-opus": "^0.2.7",
     "overwatch-js": "^1.6.0",
