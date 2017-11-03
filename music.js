@@ -5,7 +5,7 @@ const YTSearch = require("youtube-search");
 const Util = require("util")
 const YTSearchAsync = Util.promisify(YTSearch)
 
-module.exports = {
+exports = {
     play: async function (message) {
 
         let messageArray = message.toString().split(" ")

@@ -3,14 +3,29 @@ const Cheerio = require('cheerio')
 const Discord = require("discord.js")
 const Request = require("request-promise")
 
-module.exports = {
-    getFortniteStats: async function (username) {
-        if(!await checkFortnitePlayerExists(username)){
-            await searchFortnitePlayer(username)
-        }
-        await checkFortnitePlayerUpdated(username)
-        let stats = await getFortnitePlayerStats(username)
-        return stats
+exports.run = async (client, message, params = [], debug = false) => {
+    if (params.length === 0) return
+    if(!await checkFortnitePlayerExists(params[0])) await searchFortnitePlayer(params[0])
+    await checkFortnitePlayerUpdated(params[0])
+    let stats = await getFortnitePlayerStats(params[0])
+    output(stats, message, debug)
+}
+
+exports.conf = {
+  aliases: ["fn"],
+}
+
+exports.help = {
+  name: "fortnite", 
+  description: "Retrieve player's stats for Fortnite",
+  usage: "fortnite [username]"
+}
+
+function output(input, message, debug = false){
+    if(debug){
+        console.log(input)
+    }else{
+        message.channel.send(input)
     }
 }
 
@@ -49,7 +64,7 @@ async function checkFortnitePlayerUpdated(username){
     let res = await Fetch(url)
     let data = await res.text();
     if(res.ok){            
-        $ = Cheerio.load(data)
+        let $ = Cheerio.load(data)
         let lastUpdated = $(".user-info").find("p").text()
         if (~lastUpdated.indexOf("hour")){
             let updateUrl = `https://fortnitestats.net/update/${username}`

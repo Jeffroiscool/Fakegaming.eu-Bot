@@ -3,10 +3,27 @@ const pubg = require("pubg.js");
 const client = new pubg.Client("empty", {api: "pubgtop"});
 const Fetch = require("node-fetch")
 
-module.exports = {
-    getPUBGStats: async function (username, region) {
-        let stats = await getPUBGPlayerStats(username, region)
-        return stats
+exports.run = async (client, message, params = [], debug = false) => {
+    if (params.length === 0) return
+    let stats = await getPUBGPlayerStats(params[0], params[1])
+    output(stats, message, debug)
+}
+
+exports.conf = {
+  aliases: [],
+}
+
+exports.help = {
+  name: "pubg", 
+  description: "Retrieve player's stats for PlayerUnknown's Battlegrounds",
+  usage: "pubg [username] (optional: [region])"
+}
+
+function output(input, message, debug = false){
+    if(debug){
+        console.log(input)
+    }else{
+        message.channel.send(input)
     }
 }
 
@@ -55,10 +72,10 @@ async function getPUBGPlayerStats(username, region){
     let adrText = ""
     let topText = ""
 
-    for(let s of statsArray){
-        if(s != undefined){
-            let st = s.stats
-            let matchType = await parseMatchType(s.match)
+    for(let stat of statsArray){
+        if(stat != undefined){
+            let st = stat.stats
+            let matchType = await parseMatchType(stat.match)
             let rank = st.find(o => o.name === "BestRank").displayValue
             rankText += `${matchType}: ${rank}\n`
             let rating = st.find(o => o.name === "Rating").displayValue

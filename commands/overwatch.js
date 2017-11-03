@@ -1,10 +1,27 @@
 const Discord = require("discord.js")
 const OverwatchJS = require("overwatch-js")
 
-module.exports = {
-    getOverwatchStats: async function (username, region, platform) {
-        let stats = await getOverwatchPlayerStats(username, region, platform)
-        return stats
+exports.run = async (client, message, params = [], debug = false) => {
+    if (params.length === 0) return
+    let stats = await getOverwatchPlayerStats(params[0], params[1], params[2])
+    output(stats, message, debug)
+}
+
+exports.conf = {
+  aliases: ["ow"],
+}
+
+exports.help = {
+  name: "overwatch", 
+  description: "Retrieve player's stats for Overwatch",
+  usage: "overwatch [username] (optional: [region] [platform])"
+}
+
+function output(input, message, debug = false){
+    if(debug){
+        console.log(input)
+    }else{
+        message.channel.send(input)
     }
 }
 
