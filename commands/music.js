@@ -23,15 +23,19 @@ exports.run = async (client, message, params = [], debug = false) => {
         case "skip":
             currentDispatcher[message.guild.id].end()
             break
-        case "queue", "list":
+        case "queue" || "list":
             let list = await getQueue(message)
             output(list, message)
+            break
+        case "np" || "nowplaying":
+            let np = await nowPlaying(message)
+            output(np, message)
             break
     }
 }
 
 exports.conf = {
-  aliases: ["play", "pause", "stop", "skip", "queue", "list"],
+  aliases: ["play", "pause", "stop", "skip", "queue", "list", "np", "nowplaying"]
 }
 
 exports.help = {
@@ -48,6 +52,23 @@ function output(input, message, debug = false){
     }
 }
 
+function fancyTimeFormat(time)
+{   
+    var hrs = ~~(time / 3600);
+    var mins = ~~((time % 3600) / 60);
+    var secs = time % 60;
+
+    var ret = "";
+
+    if (hrs > 0) {
+        ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+    }
+
+    ret += "" + mins + ":" + (secs < 10 ? "0" : "");
+    ret += "" + secs;
+    return ret;
+}
+
 async function parseSong(message){
     let messageArray = message.toString().split(" ")
     let args = messageArray.slice(1)
@@ -62,17 +83,24 @@ async function parseSong(message){
     if (!message.member.voiceChannel) return message.reply("Please be in a voice channel first!")
     
     let song = {}
-    song.requester = message.author.username
+    song.requester = message.author
 
     let isYT = YTDL.validateURL(args[0])
     if(isYT){
-        song.title = (YTDL.getInfo(args[0])).title
+        let ytInfo = await (YTDL.getInfo(args[0]))
+        song.title = ytInfo.title
+        song.length = ytInfo.length_seconds
         song.stream = YTDL(args[0], { filter: 'audioonly' })
+        song.url = ytInfo.video_url
+        song.info = ytInfo
     }else{
         let result = await YTSearchAsync(args.join(" "), {key: BotSettings.youtubeAPI, maxResults: 1, type: "video"})
-        song.title = result[0].title
+        let ytInfo = await YTDL.getInfo(result[0].link)
+        song.title = ytInfo.title
+        song.length = ytInfo.length_seconds
         song.stream = YTDL(result[0].link, { filter: 'audioonly' })
-        song.url = result[0].link
+        song.url = ytInfo.video_url
+        song.info = ytInfo
     }
 
     if(currentQueue[message.guild.id] === undefined){
@@ -82,7 +110,10 @@ async function parseSong(message){
     if(currentQueue[message.guild.id].length === 1){
         playNextSongInQueue(message)
     }
-    output(`${song.title} added to queue`, message)
+    if (BotSettings.musicRemoveCommand){
+        message.delete()
+    }
+    output(`${song.title} (${fancyTimeFormat(song.length)}) added to queue`, message)
 }
 
 async function playNextSongInQueue(message){
@@ -115,6 +146,18 @@ async function playNextSongInQueue(message){
     //message.channel.send(`Started playback: ${song.title} requested by ${song.requester}`)
 }
 
+async function nowPlaying(message){
+    let song = currentQueue[message.guild.id][0]
+    let embed = new Discord.RichEmbed()
+    .setURL(song.url)
+    .setAuthor(song.info.author.name, song.info.author.avatar, song.info.author.channel_url)
+    .setDescription(song.info.description)
+    .setColor("#FF0000")
+    .setThumbnail(song.info.thumbnail_url)
+    .setFooter(`Requested by ${song.requester.username}`, song.requester.avatarURL)
+    return embed
+}
+
 async function getQueue(message){
     if (currentQueue[message.guild.id] === undefined) return "Nothing in playlist"
     let embed = new Discord.RichEmbed()
@@ -122,7 +165,7 @@ async function getQueue(message){
     let i = 0
     for(let song of currentQueue[message.guild.id]){
         i++
-        songList += `#${i} - ${song.title}\n`
+        songList += `#${i} - ${song.title} (${fancyTimeFormat(song.length)})\n`
     }
     embed.addField("Current playlist", songList)
     return embed
