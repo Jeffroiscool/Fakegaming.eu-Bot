@@ -126,7 +126,7 @@ async function addSongToQueue(url, message, fromPlaylist = false){
     
     song.title = ytInfo.title
     song.length = ytInfo.length_seconds
-    song.stream = YTDL(url, { filter: 'audioonly' })
+    song.stream = YTDL(url, { filter: "audioonly" })
     song.url = ytInfo.video_url
     song.info = ytInfo
 
@@ -147,15 +147,20 @@ async function parsePlaylist(message){
     let args = messageArray.slice(1)
 
     checkArguments(message)
+    
+    let playlistId = getPlaylistId(args[0])
+    if(!playlistId){ return }
 
-    let result = await URLParser.parse(args[0])
-    if(result.list){
-        let songArray = await YTPlayList(result.list)
-        console.log(songArray)
-        for (let i = 0; i < songArray.items.length; i++) { 
-            await addSongToQueue(songArray.items[i].url, message, true)
-        }
+    let songArray = await YTPlayList(playlistId)
+    console.log(songArray)
+    for (let i = 0; i < songArray.items.length; i++) { 
+        await addSongToQueue(songArray.items[i].url, message, true)
     }
+}
+
+function getPlaylistId(url){
+    let result = URLParser.parse(url)
+    return result && result.list
 }
 
 async function playNextSongInQueue(message){
