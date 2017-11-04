@@ -1,8 +1,10 @@
 const BotSettings = require("../botsettings.json")
 const Discord = require("discord.js")
-const YTDL = require("ytdl-core");
-const YTSearch = require("youtube-search");
 const Util = require("util")
+const YTDL = require("ytdl-core")
+const YTPlayList = require("ytpl")
+const URLParser = require("js-video-url-parser")
+const YTSearch = require("youtube-search")
 const YTSearchAsync = Util.promisify(YTSearch)
 
 exports.run = async (client, message, params = [], debug = false) => {
@@ -12,6 +14,10 @@ exports.run = async (client, message, params = [], debug = false) => {
         case "play":
             if (params.length === 0) return
             parseSong(message)
+            break
+        case "playlist":
+            if (params.length === 0) return
+            parsePlaylist(message)
             break
         case "pause":
             currentDispatcher[message.guild.id].pause()
@@ -23,11 +29,13 @@ exports.run = async (client, message, params = [], debug = false) => {
         case "skip":
             currentDispatcher[message.guild.id].end()
             break
-        case "queue" || "list":
+        case "queue":
+        case "list":
             let list = await getQueue(message)
             output(list, message)
             break
-        case "np" || "nowplaying":
+        case "np":
+        case "nowplaying":
             let np = await nowPlaying(message)
             output(np, message)
             break
@@ -35,7 +43,7 @@ exports.run = async (client, message, params = [], debug = false) => {
 }
 
 exports.conf = {
-  aliases: ["play", "pause", "stop", "skip", "queue", "list", "np", "nowplaying"]
+  aliases: ["play", "pause", "playlist", "stop", "skip", "queue", "list", "np", "nowplaying"]
 }
 
 exports.help = {
@@ -69,7 +77,8 @@ function fancyTimeFormat(time)
     return ret;
 }
 
-async function parseSong(message){
+
+async function checkArguments(message){
     let messageArray = message.toString().split(" ")
     let args = messageArray.slice(1)
 
@@ -81,27 +90,45 @@ async function parseSong(message){
     }
     if(args.length < 1) return output("Invalid link or search terms!", message)
     if (!message.member.voiceChannel) return message.reply("Please be in a voice channel first!")
-    
-    let song = {}
-    song.requester = message.author
+}
+
+async function parseSong(message){
+    let messageArray = message.toString().split(" ")
+    let args = messageArray.slice(1)
+
+    checkArguments(message)
 
     let isYT = YTDL.validateURL(args[0])
     if(isYT){
-        let ytInfo = await (YTDL.getInfo(args[0]))
-        song.title = ytInfo.title
-        song.length = ytInfo.length_seconds
-        song.stream = YTDL(args[0], { filter: 'audioonly' })
-        song.url = ytInfo.video_url
-        song.info = ytInfo
+        addSongToQueue(args[0], message)
     }else{
         let result = await YTSearchAsync(args.join(" "), {key: BotSettings.youtubeAPI, maxResults: 1, type: "video"})
-        let ytInfo = await YTDL.getInfo(result[0].link)
-        song.title = ytInfo.title
-        song.length = ytInfo.length_seconds
-        song.stream = YTDL(result[0].link, { filter: 'audioonly' })
-        song.url = ytInfo.video_url
-        song.info = ytInfo
+        addSongToQueue(result[0].link, message)
+        
+        if (BotSettings.musicRemoveCommand){
+            message.delete()
+        }
     }
+}
+
+async function addSongToQueue(url, message, fromPlaylist = false){
+    let song = {}
+    song.requester = message.author
+
+    let ytInfo
+    //Just because if a video is removed you get an unhandled promise rejection Q_Q
+    try{
+        ytInfo = await YTDL.getInfo(url)
+    }catch(error){
+        console.log(error)
+        return
+    }
+    
+    song.title = ytInfo.title
+    song.length = ytInfo.length_seconds
+    song.stream = YTDL(url, { filter: 'audioonly' })
+    song.url = ytInfo.video_url
+    song.info = ytInfo
 
     if(currentQueue[message.guild.id] === undefined){
         currentQueue[message.guild.id] = []
@@ -110,10 +137,25 @@ async function parseSong(message){
     if(currentQueue[message.guild.id].length === 1){
         playNextSongInQueue(message)
     }
-    if (BotSettings.musicRemoveCommand){
-        message.delete()
+    if(!fromPlaylist){
+        output(`${song.title} (${fancyTimeFormat(song.length)}) added to queue`, message)
     }
-    output(`${song.title} (${fancyTimeFormat(song.length)}) added to queue`, message)
+}
+
+async function parsePlaylist(message){
+    let messageArray = message.toString().split(" ")
+    let args = messageArray.slice(1)
+
+    checkArguments(message)
+
+    let result = await URLParser.parse(args[0])
+    if(result.list){
+        let songArray = await YTPlayList(result.list)
+        console.log(songArray)
+        for (let i = 0; i < songArray.items.length; i++) { 
+            await addSongToQueue(songArray.items[i].url, message, true)
+        }
+    }
 }
 
 async function playNextSongInQueue(message){
@@ -165,7 +207,10 @@ async function getQueue(message){
     let i = 0
     for(let song of currentQueue[message.guild.id]){
         i++
-        songList += `#${i} - ${song.title} (${fancyTimeFormat(song.length)})\n`
+        songList += `#${i} - [${song.title}](${song.url}) (${fancyTimeFormat(song.length)})\n`
+        if (i > 9){
+            break
+        }
     }
     embed.addField("Current playlist", songList)
     return embed
