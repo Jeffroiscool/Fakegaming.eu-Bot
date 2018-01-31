@@ -1,6 +1,6 @@
 const Discord = require("discord.js")
 const pubg = require("pubg.js");
-const client = new pubg.Client("empty", {api: "pubgtop"});
+const client = new pubg.Client("ff7fc3cb-99cf-416a-afec-0cd9097414bb");
 const Fetch = require("node-fetch")
 
 exports.run = async (client, message, params = [], debug = false) => {
@@ -101,7 +101,7 @@ async function getPUBGPlayerStats(username, region){
     let pubgjson = await pubgtop.json()
     let lifeTimeStats = pubgjson.LifeTimeStats
 
-    let embed = new Discord.RichEmbed()
+    let embed = new Discord.MessageEmbed()
     .setURL(profile)
     .setAuthor(stats.playerName, stats.avatar)
     .setDescription(`[PUBGTracker](${profile}) | [PUBG.me](https://pubg.me/player/${stats.playerName})\n\n`)

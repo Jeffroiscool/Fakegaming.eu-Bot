@@ -144,7 +144,7 @@ async function getFortnitePlayerStats(username){
     let total25 = parseInt(solo25) + parseInt(duo25) + parseInt(squad25)
 
     let lastUpdated = json.last_updated
-    let embed = new Discord.RichEmbed()
+    let embed = new Discord.MessageEmbed()
         .setURL(`https://fortnitestats.net/stats/${username}`)
         .setDescription(`[Profile](https://fortnitestats.net/stats/${username})\n\n${totalMatches} total matches played (${overallWinrate} won) over ${(hoursPlayed)}.`)
         .setAuthor(username, "https://static.blog.playstation.com/wp-content/uploads/avatars/ccP8lTm_400x400.jpeg")

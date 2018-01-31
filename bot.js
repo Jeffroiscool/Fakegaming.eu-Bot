@@ -48,7 +48,7 @@ stdin.on("data", async message => {
 
 client.on("ready", async () => {
     console.log(`Bot is online ${client.user.username}`)
-    client.user.setGame('Fakegaming.eu');
+    client.user.setActivity('Fakegaming.eu');
     try {
         let link = await client.generateInvite(["ADMINISTRATOR"])
         console.log(link)
@@ -60,7 +60,12 @@ client.on("ready", async () => {
 client.on("message",async message => {
     if(message.author.bot) return
     if(!message.content.startsWith(prefix)) return
-    runCommand(message)
+    try{
+        runCommand(message)
+    }
+    catch (error){
+        console.log(error.stack)
+    }
 })
 
 client.login(BotSettings.discordToken)

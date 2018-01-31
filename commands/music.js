@@ -98,6 +98,9 @@ async function parseSong(message){
 
     checkArguments(message)
 
+    //let parseUrl = URLParser.parseUrl(args[0])
+    //console.log(parseUrl)
+
     let isYT = YTDL.validateURL(args[0])
     if(isYT){
         addSongToQueue(args[0], message)
@@ -195,7 +198,7 @@ async function playNextSongInQueue(message){
 
 async function nowPlaying(message){
     let song = currentQueue[message.guild.id][0]
-    let embed = new Discord.RichEmbed()
+    let embed = new Discord.MessageEmbed()
     .setURL(song.url)
     .setAuthor(song.info.author.name, song.info.author.avatar, song.info.author.channel_url)
     .setDescription(song.info.description)
@@ -207,7 +210,7 @@ async function nowPlaying(message){
 
 async function getQueue(message){
     if (currentQueue[message.guild.id] === undefined) return "Nothing in playlist"
-    let embed = new Discord.RichEmbed()
+    let embed = new Discord.MessageEmbed()
     let songList = ""
     let i = 0
     for(let song of currentQueue[message.guild.id]){
